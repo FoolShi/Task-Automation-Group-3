@@ -4,6 +4,11 @@ IP_ADDR="192.168.1.100"
 INTERFACE="ems160"
 DISK_DEV="sda"
 
+get_elapsed_seconds() {
+  current_time=$(date +%s)
+  echo $((current_time - START_TIME))
+}
+
 start_process() {
     echo "Starting APM process..."
     # Simulate starting the APM process
