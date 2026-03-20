@@ -4,12 +4,19 @@ IP_ADDR="192.168.1.100"
 INTERFACE="ems160"
 DISK_DEV="sda"
 
-START_TIME=$(date +%s)
+#START_TIME=$(date +%s)
 
 
-get_elapsed_seconds() {
-  current_time=$(date +%s)
-  echo $((current_time - START_TIME))
+#get_elapsed_seconds() {
+#  current_time=$(date +%s)
+#  echo $((current_time - START_TIME))
+#}
+
+elapsed_time() {
+    start=$(date +%s)
+    wait pgrep  
+    end=$(date +%s)
+    echo $((start-end))
 }
 
 start_process() {
