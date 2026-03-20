@@ -68,6 +68,10 @@ system_metrics() {
 stop_process() {
     echo "Stopping APM process..."
     # Simulate stopping the APM process
+    for i in "${PID_ARR[@]}";
+    do
+        kill "$PID"
+    done
     sleep 2
     echo "APM process stopped successfully."
 }
