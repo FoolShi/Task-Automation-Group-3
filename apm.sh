@@ -43,17 +43,25 @@ process_metrics() {
         for i in "${PID_ARR[@]}";
         do
             METRICS=$(ps -p "$PID" -o %cpu,%mem --no-headers | awk '{print "%.1f,%.1f", $1, $2}')
-            echo "${ELASPED},${METRICS}" >> "$CSV_FILE" #change to format with elasped time
+            echo "${ELASPED},${METRICS}" >> "$CSV_FILE"
         done
     sleep 5
-    echo "APM metrics processed successfully."
 }
 
 system_metrics() {
     echo "Collecting system metrics..."
     # Simulate collecting system metrics
-    sleep 2
-    echo "System metrics collected successfully."
+    while true; do
+        CURRENT_TIME=$(date +%s)
+        ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
+        for i in "${PID_ARR[@]}";
+        do 
+            RATES=ifstat -i "$INTERFACE"
+            WRITES=sudo iotop -p "${PID_ARR[@]}"
+            AVAILABLE=df /
+            echo "${ELASPED},${RATES},${WRITES},${AVAILABLE}" >> "$CSV_FILE"
+        done 
+    sleep 5     
 }
 
 
