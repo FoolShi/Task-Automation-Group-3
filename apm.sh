@@ -10,19 +10,22 @@ PID_ARR=()
 start_process() {
     echo "Starting APM process..."
     # Simulate starting the APM process
-    for i in $PROC_ARR
+    for process in "${PROC_ARR[@]}"
     do
-        ./$[PROC_ARR[i]]
-        pid=$(pgrep $PROC_ARR[i])
-        if [ -z "$pid" ]
-            echo "Error in starting processes..."
+        ./"$process" &
+        pid=$!
+
+        if [ -z "$pid" ]; then
+            echo "Error in starting $proc..."
             exit 1
         else
-            PID_ARR+=$pid
-            exit 0
+            PID_ARR+=("$pid")
+        fi
     done
+
     sleep 5
-    echo "All APM processes started successfully"
+    echo "All APM processes started successfully!"
+    echo "PIDs: ${PID_ARR[@]}"
 }
 
 process_metrics() {
