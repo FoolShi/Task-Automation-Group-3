@@ -10,7 +10,7 @@ PID_ARR=()
 start_process() {
     echo "Starting APM process..."
     # Simulate starting the APM process
-    for process in "${PROC_ARR[@]}"
+    for process in "${PROC_ARR[@]}";
     do
         ./"$process" &
         pid=$!
@@ -31,8 +31,14 @@ start_process() {
 process_metrics() {
     echo "Processing APM metrics..."
     # Simulate processing metrics
-    # Simulate processing metrics
-    sleep 2
+    for i in "${PID_ARR[@]}";
+    do 
+        PROC_NAME=$(ps -p "$i" -o comm=)
+        CSV_FILE="${PROC_NAME}_metrics.csv"
+        METRICS=$(ps -p "$PID" -o %cpu,%mem --no-headers | awk '{print "%.1f,%.1f", $1, $2}')
+        echo "$METRICS" >> "$CSV_FILE" #change to format with elasped time
+    done
+    sleep 5
     echo "APM metrics processed successfully."
 }
 
