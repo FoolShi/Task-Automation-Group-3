@@ -9,6 +9,8 @@ get_elapsed_seconds() {
   echo $((current_time - START_TIME))
 }
 
+START_TIME=$(date +%s)
+
 start_process() {
     echo "Starting APM process..."
     # Simulate starting the APM process
