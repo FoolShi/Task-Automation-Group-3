@@ -28,6 +28,7 @@ start_process() {
 process_metrics() {
     echo "Processing APM metrics..."
     # Simulate processing metrics
+    # Simulate processing metrics
     sleep 2
     echo "APM metrics processed successfully."
 }
