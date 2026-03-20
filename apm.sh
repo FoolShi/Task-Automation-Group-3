@@ -35,9 +35,16 @@ process_metrics() {
     do 
         PROC_NAME=$(ps -p "$i" -o comm=)
         CSV_FILE="${PROC_NAME}_metrics.csv"
-        METRICS=$(ps -p "$PID" -o %cpu,%mem --no-headers | awk '{print "%.1f,%.1f", $1, $2}')
-        echo "$METRICS" >> "$CSV_FILE" #change to format with elasped time
     done
+
+    while true; do
+        CURRENT_TIME=$(date +%s)
+        ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
+        for i in "${PID_ARR[@]}";
+        do
+            METRICS=$(ps -p "$PID" -o %cpu,%mem --no-headers | awk '{print "%.1f,%.1f", $1, $2}')
+            echo "${ELASPED},${METRICS}" >> "$CSV_FILE" #change to format with elasped time
+        done
     sleep 5
     echo "APM metrics processed successfully."
 }
