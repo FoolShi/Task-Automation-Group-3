@@ -3,27 +3,26 @@
 IP_ADDR="192.168.1.100"
 INTERFACE="ems160"
 DISK_DEV="sda"
-
+PROC_ARR=(APM1, APM2, APM3, APM4, APM5, APM6)
+PID_ARR=()
 #START_TIME=$(date +%s)
-
-
-#get_elapsed_seconds() {
-#  current_time=$(date +%s)
-#  echo $((current_time - START_TIME))
-#}
-
-elapsed_time() {
-    start=$(date +%s)
-    wait pgrep  
-    end=$(date +%s)
-    echo $((start-end))
-}
 
 start_process() {
     echo "Starting APM process..."
     # Simulate starting the APM process
-    sleep 2
-    echo "APM process started successfully."
+    for i in $PROC_ARR
+    do
+        ./$[PROC_ARR[i]]
+        pid=$(pgrep $PROC_ARR[i])
+        if [ -z "$pid" ]
+            echo "Error in starting processes..."
+            exit 1
+        else
+            PID_ARR+=$pid
+            exit 0
+    done
+    sleep 5
+    echo "All APM processes started successfully!"
 }
 
 process_metrics() {
