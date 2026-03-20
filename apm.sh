@@ -22,7 +22,7 @@ start_process() {
             exit 0
     done
     sleep 5
-    echo "All APM processes started successfully!"
+    echo "All APM processes started successfully"
 }
 
 process_metrics() {
