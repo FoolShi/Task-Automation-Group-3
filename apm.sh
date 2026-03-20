@@ -72,8 +72,6 @@ stop_process() {
     do
         kill "$i"
     done
-    sleep 2
+    sleep 5
     echo "APM process stopped successfully."
 }
-
-# iudhgiudhfgiuhdfg
