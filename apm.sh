@@ -4,6 +4,8 @@ IP_ADDR="192.168.1.100"
 INTERFACE="ems160"
 DISK_DEV="sda"
 
+START_TIME=$(date +%s)
+
 start_process() {
     echo "Starting APM process..."
     # Simulate starting the APM process
