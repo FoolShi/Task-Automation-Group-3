@@ -3,75 +3,91 @@
 IP_ADDR="192.168.1.100"
 INTERFACE="ems160"
 DISK_DEV="sda"
-PROC_ARR=(APM1, APM2, APM3, APM4, APM5, APM6)
+
+PROC_ARR=(APM1 APM2 APM3 APM4 APM5 APM6)
 PID_ARR=()
-#START_TIME=$(date +%s)
+
+START_TIME=$(date +%s)
 
 start_process() {
     echo "Starting APM process..."
-    # Simulate starting the APM process
-    for process in "${PROC_ARR[@]}";
-    do
-        ./"$process" &
+    
+    for process in "${PROC_ARR[@]}"; do
+        ./"$process" "$IP_ADDR" &
         pid=$!
 
         if [ -z "$pid" ]; then
-            echo "Error in starting $proc..."
+            echo "Error in starting $process..."
             exit 1
         else
             PID_ARR+=("$pid")
         fi
     done
 
-    sleep 5
-    echo "All APM processes started successfully!"
-    echo "PIDs: ${PID_ARR[@]}"
+    sleep 2
+    echo "Processes started: ${PID_ARR[@]}"
 }
 
 process_metrics() {
     echo "Processing APM metrics..."
-    # Simulate processing metrics
-    for i in "${PID_ARR[@]}";
-    do 
-        PROC_NAME=$(ps -p "$i" -o comm=)
-        CSV_FILE="${PROC_NAME}_metrics.csv"
-    done
 
     while true; do
         CURRENT_TIME=$(date +%s)
         ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
-        for i in "${PID_ARR[@]}";
-        do
-            METRICS=$(ps -p "$PID" -o %cpu,%mem --no-headers | awk '{print "%.1f,%.1f", $1, $2}')
-            echo "${ELASPED},${METRICS}" >> "$CSV_FILE"
+
+        for pid in "${PID_ARR[@]}"; do
+            if ps -p "$pid" > /dev/null 2>&1; then
+
+                PROC_NAME=$(ps -p "$pid" -o comm=)
+                METRICS=$(ps -p "$pid" -o %cpu,%mem --no-headers | awk '{printf "%.1f,%.1f\n", $1, $2}')
+                CSV_FILE="${PROC_NAME}_metrics.csv"
+                echo "${ELAPSED_TIME},${METRICS}" >> "$CSV_FILE"
+            fi 
+
         done
-    sleep 5
+        sleep 5
+    done 
 }
 
 system_metrics() {
     echo "Collecting system metrics..."
-    # Simulate collecting system metrics
+
+    SYS_FILE="system_metrics.csv"
+
     while true; do
         CURRENT_TIME=$(date +%s)
         ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
-        for i in "${PID_ARR[@]}";
-        do 
-            RATES=ifstat -i "$INTERFACE"
-            WRITES=sudo iotop -p "${PID_ARR[@]}"
-            AVAILABLE=df /
-            echo "${ELASPED},${RATES},${WRITES},${AVAILABLE}" >> "$CSV_FILE"
-        done 
-    sleep 5     
+        
+        RATES=$(ifstat -i "$INTERFACE" 1 1 | tail -1 | awk '{print $1","$2}')
+        
+        WRITES=$(iostat -d "$DISK_DEV" 1 2 | tail -1 | awk '{print $4}')
+        
+        AVAILABLE=$(df / | tail -1 | awk '{print $4}')
+        
+        echo "${ELAPSED_TIME},${RATES},${WRITES},${AVAILABLE}" >> "$SYS_FILE"     
+        
+        sleep 5 
+    done    
 }
 
 
-stop_process() {
-    echo "Stopping APM process..."
-    # Simulate stopping the APM process
-    for i in "${PID_ARR[@]}";
-    do
-        kill "$i"
+cleanup() {
+    echo "Stopping APM processes..."
+
+    for pid in "${PID_ARR[@]}"; do
+        kill "$pid" 2>/dev/null
     done
-    sleep 5
-    echo "APM process stopped successfully."
+
+    pkill -P $$
+    
+    echo "Cleanup complete!"
+    exit
 }
+
+trap cleanup SIGINT
+
+start_process
+process_metrics &
+system_metrics &
+
+wait
