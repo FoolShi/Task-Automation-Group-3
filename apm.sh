@@ -58,10 +58,12 @@ system_metrics() {
         CURRENT_TIME=$(date +%s)
         ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
         
-        RATES=$(ifstat -i "$INTERFACE" 1 1 2>/dev/null | awk 'NR==3 {print $1","$2}')
+        RATES=$(ifstat -i "$INTERFACE" 1 1 2>/dev/null | tail -1 | awk '{print $1 ", " $2}')
+        [ -z "$RATES"  ] && RATES="0,0"
         
-        WRITES=$(iostat -d -y "$DISK_DEV" 1 1 | awk 'NR==4 {print $4}')
-        
+        WRITES=$(iostat -d -y "$DISK_DEV" 1 1 2>/dev/null | tail -1 | awk '{print $3}')
+        [ -z "$WRITES"  ] && WRITES="0"
+
         AVAILABLE=$(df / | tail -1 | awk '{print $4}')
         
         echo "${ELAPSED_TIME},${RATES},${WRITES},${AVAILABLE}" >> "$SYS_FILE"     
